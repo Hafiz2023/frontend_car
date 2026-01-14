@@ -1,11 +1,11 @@
 "use client";
 
-import { motion } from "framer-motion";
+import { motion, useMotionValue, useTransform, useSpring } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import Image from "next/image";
 import { ArrowRight, PlayCircle, Star, ShieldCheck, Zap, Trophy, Timer } from "lucide-react";
-import { useMotionValue, useTransform } from "framer-motion";
+import React, { useRef } from "react";
 
 // --- Core Sub-Components within Hero ---
 
@@ -54,30 +54,30 @@ const HeroContent = () => (
         initial={{ opacity: 0, x: -50 }}
         animate={{ opacity: 1, x: 0 }}
         transition={{ duration: 0.8, ease: "easeOut" }}
-        className="flex flex-col justify-center space-y-10 py-12"
+        className="flex flex-col justify-center space-y-8 md:space-y-10 py-8 md:py-12"
     >
         <HeroBadge />
 
         <div className="space-y-4">
-            <h1 className="text-6xl font-black leading-[1.1] tracking-tight text-slate-900 md:text-7xl lg:text-8xl">
+            <h1 className="text-4xl sm:text-6xl md:text-7xl lg:text-8xl font-black leading-[1.1] tracking-tight text-slate-900">
                 Redefine <br />
                 <span className="bg-gradient-to-r from-blue-500 via-indigo-500 to-violet-500 bg-clip-text text-transparent">
                     Velocity.
                 </span>
             </h1>
-            <p className="max-w-2xl text-lg font-light text-slate-600 md:text-xl leading-relaxed">
+            <p className="max-w-2xl text-base sm:text-lg font-light text-slate-600 md:text-xl leading-relaxed">
                 Experience the pinnacle of automotive engineering.
                 Our curated collection of high-performance electric and luxury vehicles waits for you.
             </p>
         </div>
 
         <div className="flex flex-wrap gap-4">
-            <Button size="lg" className="h-16 gap-3 rounded-full bg-blue-600 px-8 text-lg font-semibold hover:bg-blue-500 shadow-lg shadow-blue-600/25 transition-all hover:scale-105" asChild>
+            <Button size="lg" className="h-14 md:h-16 gap-3 rounded-full bg-blue-600 px-6 md:px-8 text-base md:text-lg font-semibold hover:bg-blue-500 shadow-lg shadow-blue-600/25 transition-all hover:scale-105" asChild>
                 <Link href="/rent">
                     Rent Now <ArrowRight className="h-5 w-5" />
                 </Link>
             </Button>
-            <Button size="lg" variant="outline" className="h-16 gap-3 rounded-full border-2 border-slate-200 bg-transparent px-8 text-lg text-slate-900 hover:bg-slate-50 hover:border-slate-300 hover:text-slate-900 transition-all" asChild>
+            <Button size="lg" variant="outline" className="h-14 md:h-16 gap-3 rounded-full border-2 border-slate-200 bg-transparent px-6 md:px-8 text-base md:text-lg text-slate-900 hover:bg-slate-50 hover:border-slate-300 hover:text-slate-900 transition-all" asChild>
                 <Link href="/sale">
                     <PlayCircle className="h-5 w-5" /> Virtual Tour
                 </Link>
@@ -88,66 +88,104 @@ const HeroContent = () => (
     </motion.div>
 );
 
-const HeroVisual = () => {
+const HeroTiltImage = () => {
+    const ref = useRef<HTMLDivElement>(null);
+
     const x = useMotionValue(0);
     const y = useMotionValue(0);
-    const rotateX = useTransform(y, [-100, 100], [30, -30]);
-    const rotateY = useTransform(x, [-100, 100], [-30, 30]);
 
-    function handleMouseMove(event: React.MouseEvent<HTMLDivElement, MouseEvent>) {
-        const rect = event.currentTarget.getBoundingClientRect();
-        const centerX = rect.left + rect.width / 2;
-        const centerY = rect.top + rect.height / 2;
-        x.set(event.clientX - centerX);
-        y.set(event.clientY - centerY);
-    }
+    const mouseXSpring = useSpring(x);
+    const mouseYSpring = useSpring(y);
 
+    const rotateX = useTransform(mouseYSpring, [-0.5, 0.5], ["15deg", "-15deg"]);
+    const rotateY = useTransform(mouseXSpring, [-0.5, 0.5], ["-15deg", "15deg"]);
+
+    const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
+        if (!ref.current) return;
+
+        const rect = ref.current.getBoundingClientRect();
+
+        const width = rect.width;
+        const height = rect.height;
+
+        const mouseX = e.clientX - rect.left;
+        const mouseY = e.clientY - rect.top;
+
+        const xPct = mouseX / width - 0.5;
+        const yPct = mouseY / height - 0.5;
+
+        x.set(xPct);
+        y.set(yPct);
+    };
+
+    const handleMouseLeave = () => {
+        x.set(0);
+        y.set(0);
+    };
+
+    return (
+        <motion.div
+            ref={ref}
+            onMouseMove={handleMouseMove}
+            onMouseLeave={handleMouseLeave}
+            style={{
+                rotateY,
+                rotateX,
+                transformStyle: "preserve-3d",
+            }}
+            className="relative w-full aspect-[4/3] md:aspect-square lg:aspect-[4/3] flex items-center justify-center transition-all ease-out duration-200"
+        >
+            <div
+                style={{ transform: "translateZ(50px)" }}
+                className="relative w-full h-full rounded-3xl overflow-hidden shadow-2xl border-4 border-white bg-slate-100"
+            >
+                <Image
+                    src="https://images.unsplash.com/photo-1617788138017-80ad40651399?q=80&w=2000&auto=format&fit=crop"
+                    alt="Hero Luxury Car"
+                    fill
+                    className="object-cover scale-110"
+                    priority
+                />
+
+                {/* Glare Effect */}
+                <div className="absolute inset-0 bg-gradient-to-tr from-white/20 via-transparent to-black/20 pointer-events-none mix-blend-overlay" />
+            </div>
+
+            {/* Floating Badge in 3D Space */}
+            <div
+                style={{ transform: "translateZ(100px)" }}
+                className="absolute -bottom-6 -left-6 z-20 pointer-events-none hidden sm:block"
+            >
+                <div className="relative">
+                    <div className="absolute inset-0 bg-blue-500 rounded-full blur-xl opacity-40"></div>
+                    <div className="relative h-24 w-24 rounded-full bg-white flex items-center justify-center border-4 border-slate-50 shadow-xl">
+                        <div className="text-center">
+                            <span className="block text-2xl font-black text-blue-600">24h</span>
+                            <span className="text-[10px] font-bold text-slate-400 uppercase">Support</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </motion.div>
+    );
+};
+
+
+const HeroVisual = () => {
     return (
         <motion.div
             initial={{ opacity: 0, scale: 0.9, x: 50 }}
             animate={{ opacity: 1, scale: 1, x: 0 }}
             transition={{ duration: 1, delay: 0.2 }}
-            className="relative flex items-center justify-center lg:h-full min-h-[500px] perspective-1000"
-            onMouseMove={handleMouseMove}
-            onMouseLeave={() => {
-                x.set(0);
-                y.set(0);
-            }}
+            className="relative flex items-center justify-center lg:h-full min-h-[300px] md:min-h-[500px] perspective-1000 pl-0 md:pl-8"
         >
             {/* Animated Glow Behind */}
-            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-blue-500/10 rounded-full blur-[120px] animate-pulse -z-10" />
+            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[300px] h-[300px] md:w-[600px] md:h-[600px] bg-blue-500/10 rounded-full blur-[80px] md:blur-[120px] animate-pulse -z-10" />
 
-            {/* Floating Effect Wrapper with Tilt */}
-            <motion.div
-                style={{
-                    rotateX: rotateX,
-                    rotateY: rotateY,
-                }}
-                animate={{ y: [-15, 15, -15] }}
-                transition={{
-                    y: {
-                        duration: 6,
-                        repeat: Infinity,
-                        ease: "easeInOut"
-                    },
-                    default: {
-                        type: "spring",
-                        stiffness: 200,
-                        damping: 20
-                    }
-
-                }}
-                whileHover={{ scale: 1.1, rotate: 2, filter: "brightness(1.1)" }}
-                className="relative w-full aspect-[16/9] cursor-pointer"
-            >
-                <Image
-                    src="https://images.unsplash.com/photo-1617788138017-80ad40651399?q=80&w=2000&auto=format&fit=crop"
-                    alt="Luxury Sport Car"
-                    fill
-                    className="object-contain drop-shadow-2xl z-10 transition-all duration-500"
-                    priority
-                />
-            </motion.div>
+            {/* 3D Tilt Image Wrapper */}
+            <div className="relative w-full z-10">
+                <HeroTiltImage />
+            </div>
 
             {/* Floating Feature Cards */}
             <motion.div

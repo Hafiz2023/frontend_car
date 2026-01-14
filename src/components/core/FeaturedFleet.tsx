@@ -55,7 +55,13 @@ export default function FeaturedFleet() {
         <section className="py-24 bg-slate-50 overflow-hidden relative">
             <div className="absolute top-0 left-0 w-full h-px bg-gradient-to-r from-transparent via-blue-500/20 to-transparent" />
 
-            <div className="container mx-auto px-6">
+            <motion.div
+                initial={{ opacity: 0, y: 50 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.8 }}
+                className="container mx-auto px-6"
+            >
                 <div className="flex flex-col md:flex-row items-end justify-between mb-12">
                     <div>
                         <Badge variant="outline" className="mb-4 text-blue-600 border-blue-600/30 bg-blue-50">
@@ -143,7 +149,7 @@ export default function FeaturedFleet() {
                         </motion.div>
                     </div>
                 </div>
-            </div>
+            </motion.div>
         </section>
     );
 }
