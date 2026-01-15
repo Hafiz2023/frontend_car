@@ -16,7 +16,7 @@ const activeRentals = [
     {
         id: "R-2024-001",
         carName: "Porsche 911 GT3 RS",
-        image: "https://images.unsplash.com/photo-1503376763036-066120622c74?q=80&w=800&auto=format&fit=crop",
+        image: "https://images.unsplash.com/photo-1552519507-da3b142c6e3d?q=80&w=800&auto=format&fit=crop",
         startDate: "2024-03-15",
         endDate: "2024-03-18",
         status: "Active",

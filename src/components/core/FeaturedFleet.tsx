@@ -85,15 +85,26 @@ export default function FeaturedFleet() {
                     </div>
                 </div>
 
-                <div className="relative h-[450px] md:h-[600px] w-full rounded-2xl overflow-hidden shadow-2xl shadow-blue-900/5 border border-slate-200">
+                <div className="relative h-[450px] md:h-[600px] w-full perspective-1000">
                     <AnimatePresence mode="wait">
                         <motion.div
                             key={current}
-                            initial={{ opacity: 0, scale: 1.1 }}
-                            animate={{ opacity: 1, scale: 1 }}
-                            exit={{ opacity: 0 }}
-                            transition={{ duration: 0.7 }}
-                            className="absolute inset-0"
+                            initial={{ opacity: 0, scale: 1.1, rotateX: 5 }}
+                            animate={{
+                                opacity: 1,
+                                scale: 1,
+                                rotateX: 0,
+                                y: [0, -10, 0] // Floating effect
+                            }}
+                            exit={{ opacity: 0, scale: 0.9 }}
+                            transition={{
+                                opacity: { duration: 0.5 },
+                                scale: { duration: 0.5 },
+                                rotateX: { duration: 0.5 },
+                                y: { duration: 4, repeat: Infinity, ease: "easeInOut" }
+                            }}
+                            className="absolute inset-0 rounded-sm border-[12px] border-white bg-white shadow-[0_20px_60px_rgba(0,0,0,0.3)] overflow-hidden"
+                            style={{ transformStyle: "preserve-3d" }}
                         >
                             <Image
                                 src={cars[current].image}
@@ -107,6 +118,7 @@ export default function FeaturedFleet() {
                             <div className="absolute inset-0 bg-gradient-to-t from-slate-900 via-slate-900/40 to-transparent" />
                         </motion.div>
                     </AnimatePresence>
+
 
                     <div className="absolute bottom-0 left-0 w-full p-8 md:p-12">
                         <motion.div

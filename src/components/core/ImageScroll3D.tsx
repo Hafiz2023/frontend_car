@@ -57,7 +57,7 @@ function Card3D({ src, index }: { src: string; index: number }) {
                 transition: { duration: 0.8, ease: "circOut" }
             }}
             viewport={{ once: false, amount: 0.2 }}
-            className="relative w-full max-w-5xl aspect-[16/9] rounded-3xl overflow-hidden shadow-[0_0_50px_rgba(0,0,0,0.5)] border border-slate-700 bg-slate-900 mx-auto"
+            className="relative w-full max-w-5xl aspect-[16/9] rounded-sm overflow-hidden shadow-[0_30px_60px_rgba(0,0,0,0.5)] border-[12px] border-white bg-white mx-auto"
         >
             <Image
                 src={src}
